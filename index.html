@@ -11,10 +11,21 @@
     }
     header {
       background: linear-gradient(135deg, #2563eb, #1e3a8a);
-      color: white; text-align: center; padding: 40px 20px;
+      color: white; padding: 20px 40px;
+      display: flex; align-items: center; justify-content: space-between;
     }
-    header h1 { margin: 0; font-size: 2.5em; }
-    header p { margin: 10px 0 0; font-size: 1.2em; }
+    header img {
+      height: 60px; width: 60px; border-radius: 50%; border: 2px solid #fff;
+    }
+    header h1 {
+      margin: 0; font-size: 2em;
+    }
+    header p {
+      margin: 5px 0 0; font-size: 1em;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 15px;
+    }
 
     nav {
       background: #1e3a8a; display: flex; justify-content: center; flex-wrap: wrap;
@@ -56,11 +67,19 @@
   </style>
 </head>
 <body>
+  <!-- HEADER -->
   <header>
-    <h1>RSB Official Website</h1>
-    <p>Selamat datang di website resmi kami</p>
+    <div class="brand">
+      <!-- Ganti logo.png dengan logo organisasi kamu -->
+      <img src="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg" alt="Logo RSB">
+      <div>
+        <h1>RSB Official Website</h1>
+        <p>Website Resmi & Informasi Terpercaya</p>
+      </div>
+    </div>
   </header>
 
+  <!-- NAVIGATION -->
   <nav>
     <a href="#beranda">Beranda</a>
     <a href="#profil">Profil</a>
@@ -69,18 +88,21 @@
     <a href="#kontak">Kontak</a>
   </nav>
 
+  <!-- BERANDA -->
   <div class="container" id="beranda">
     <h2>Beranda</h2>
-    <p>Halo! Ini adalah website resmi RSB yang dibangun menggunakan GitHub Pages.
-       Website ini cepat, gratis, dan mudah diakses dari mana saja 🌍.</p>
+    <p>Selamat datang di website resmi <b>RSB</b>.  
+       Website ini dibangun dengan GitHub Pages untuk memberikan informasi cepat, aman, dan mudah diakses dari mana saja 🌍.</p>
   </div>
 
+  <!-- PROFIL -->
   <div class="container" id="profil">
     <h2>Profil Kami</h2>
-    <p>Kami hadir untuk memberikan informasi terpercaya kepada masyarakat.
+    <p>Kami hadir untuk memberikan informasi terpercaya kepada masyarakat.  
        Dengan desain sederhana namun elegan, website ini menjadi pusat informasi resmi RSB.</p>
   </div>
 
+  <!-- LAYANAN -->
   <div class="container" id="layanan">
     <h2>Layanan</h2>
     <div class="grid">
@@ -99,18 +121,21 @@
     </div>
   </div>
 
+  <!-- DOKUMEN -->
   <div class="container" id="dokumen">
     <h2>Dokumen Kendali Pemeriksaan</h2>
     <p>Berikut dokumen susunan 4 rangkap untuk keperluan resmi.</p>
     <button class="print-btn" onclick="window.print()">🖨️ Cetak Dokumen</button>
   </div>
 
+  <!-- KONTAK -->
   <div class="container" id="kontak">
     <h2>Kontak Kami</h2>
     <p>Email: <a href="mailto:info@rsb.com">info@rsb.com</a></p>
     <p>Telepon: +62 812 3456 7890</p>
   </div>
 
+  <!-- FOOTER -->
   <footer>
     &copy; 2025 RSB. Semua Hak Dilindungi.
   </footer>
