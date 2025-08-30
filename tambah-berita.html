@@ -2,50 +2,49 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Tambah Berita</title>
+  <title>Berita Terbaru</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f9; }
-    form { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-    input, textarea { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 5px; }
-    button { background: #2563eb; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px; }
-    button:hover { background: #1e40af; }
-    #status { margin-top: 10px; font-weight: bold; }
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f9fafb; }
+    .news { background: white; padding: 15px; margin: 10px 0; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    .news h3 { margin: 0; color: #2563eb; }
+    .news small { color: #666; display: block; margin-top: 5px; }
   </style>
 </head>
 <body>
-  <h2>📝 Tambah Berita Baru</h2>
-  <form id="beritaForm">
-    <input type="text" name="judul" placeholder="Judul Berita" required>
-    <textarea name="isi" placeholder="Isi Berita" rows="5" required></textarea>
-    <input type="text" name="penulis" placeholder="Nama Penulis" required>
-    <button type="submit">Kirim</button>
-  </form>
-
-  <p id="status"></p>
+  <h2>📢 Berita Terbaru</h2>
+  <div id="berita">Sedang memuat berita...</div>
 
   <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbyiHZFeA2tIRvpVtNzmvN2g8VD2q0cvnmwVj8MPXbE8uelaZCviiQiLYQvstWTpHpoCZQ/exec";
+    const sheetID = "1CVmftC8-jNyWhpY1ol3Ur29r_4RDKSZWrLDKxmxicvQ"; // ID spreadsheet kamu
+    const sheetName = "Sheet1"; // nama sheet
+    const url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
 
-    document.getElementById("beritaForm").addEventListener("submit", function(e){
-      e.preventDefault();
-      let data = {
-        judul: this.judul.value,
-        isi: this.isi.value,
-        penulis: this.penulis.value
-      };
-      fetch(scriptURL, {
-        method: "POST",
-        body: JSON.stringify(data)
-      })
+    fetch(url)
       .then(res => res.text())
-      .then(txt => {
-        document.getElementById("status").innerText = "✅ Berita berhasil dikirim!";
-        this.reset();
+      .then(data => {
+        let json = JSON.parse(data.substr(47).slice(0, -2));
+        let rows = json.table.rows;
+        let html = "";
+
+        rows.slice(1).forEach(r => { // skip header row
+          let tanggal = r.c[0]?.f || r.c[0]?.v || "-";
+          let judul   = r.c[1]?.v || "(Tanpa Judul)";
+          let isi     = r.c[2]?.v || "";
+          let penulis = r.c[3]?.v || "Anonim";
+
+          html += `
+            <div class="news">
+              <h3>${judul}</h3>
+              <p>${isi}</p>
+              <small>🗓️ ${tanggal} | ✍️ ${penulis}</small>
+            </div>`;
+        });
+
+        document.getElementById("berita").innerHTML = html;
       })
       .catch(err => {
-        document.getElementById("status").innerText = "❌ Gagal mengirim berita.";
+        document.getElementById("berita").innerText = "❌ Gagal memuat berita. " + err;
       });
-    });
   </script>
 </body>
 </html>
