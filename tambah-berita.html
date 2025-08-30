@@ -5,7 +5,7 @@
   <title>Tambah Berita</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f9; }
-    form { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    form { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
     input, textarea { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 5px; }
     button { background: #2563eb; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px; }
     button:hover { background: #1e40af; }
@@ -15,8 +15,12 @@
 <body>
   <h2>📝 Tambah Berita Baru</h2>
   <form id="beritaForm">
+    <input type="date" name="tanggal" required>
     <input type="text" name="judul" placeholder="Judul Berita" required>
-    <textarea name="isi" placeholder="Isi Berita" rows="5" required></textarea>
+    <input type="url" name="gambar1" placeholder="Link Gambar 1" required>
+    <textarea name="isi1" placeholder="Isi Berita" rows="5" required></textarea>
+    <input type="url" name="gambar2" placeholder="Link Gambar 2 (opsional)">
+    <textarea name="isi2" placeholder="Isi Kembali" rows="5"></textarea>
     <input type="text" name="penulis" placeholder="Nama Penulis" required>
     <button type="submit">Kirim</button>
   </form>
@@ -24,13 +28,17 @@
   <p id="status"></p>
 
   <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbyiHZFeA2tIRvpVtNzmvN2g8VD2q0cvnmwVj8MPXbE8uelaZCviiQiLYQvstWTpHpoCZQ/exec";
+    const scriptURL = "https://script.google.com/macros/s/AKfycbyiHZFeA2tIRvpVtNzmvN2g8VD2q0cvnmwVj8MPXbE8uelaZCviiQiLYQvstWTpHpoCZQ/exec"; // URL Web App kamu
 
     document.getElementById("beritaForm").addEventListener("submit", function(e){
       e.preventDefault();
       let data = {
+        tanggal: this.tanggal.value,
         judul: this.judul.value,
-        isi: this.isi.value,
+        gambar1: this.gambar1.value,
+        isi1: this.isi1.value,
+        gambar2: this.gambar2.value,
+        isi2: this.isi2.value,
         penulis: this.penulis.value
       };
       fetch(scriptURL, {
