@@ -7,7 +7,7 @@
     body { font-family: Arial, sans-serif; padding: 20px; background: #f9fafb; }
     .news { background: white; padding: 15px; margin: 10px 0; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
     .news h3 { margin: 0; color: #2563eb; }
-    .news small { color: #666; }
+    .news small { color: #666; display: block; margin-top: 5px; }
   </style>
 </head>
 <body>
@@ -15,8 +15,8 @@
   <div id="berita">Sedang memuat berita...</div>
 
   <script>
-    const sheetID = "ID_SPREADSHEET_KAMU"; // ganti dengan ID spreadsheet (ambil dari link Sheet)
-    const sheetName = "Sheet1"; // ganti dengan nama sheet
+    const sheetID = "1CVmftC8-jNyWhpY1ol3Ur29r_4RDKSZWrLDKxmxicvQ"; // ID spreadsheet kamu
+    const sheetName = "Sheet1"; // nama sheet
     const url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
 
     fetch(url)
@@ -25,18 +25,25 @@
         let json = JSON.parse(data.substr(47).slice(0, -2));
         let rows = json.table.rows;
         let html = "";
-        rows.slice(1).forEach(r => { // skip header
+
+        rows.slice(1).forEach(r => { // skip header row
+          let tanggal = r.c[0]?.f || r.c[0]?.v || "-";
+          let judul   = r.c[1]?.v || "(Tanpa Judul)";
+          let isi     = r.c[2]?.v || "";
+          let penulis = r.c[3]?.v || "Anonim";
+
           html += `
             <div class="news">
-              <h3>${r.c[1]?.v || "Tanpa Judul"}</h3>
-              <p>${r.c[2]?.v || ""}</p>
-              <small>🗓️ ${r.c[0]?.v} | ✍️ ${r.c[3]?.v}</small>
+              <h3>${judul}</h3>
+              <p>${isi}</p>
+              <small>🗓️ ${tanggal} | ✍️ ${penulis}</small>
             </div>`;
         });
+
         document.getElementById("berita").innerHTML = html;
       })
       .catch(err => {
-        document.getElementById("berita").innerText = "❌ Gagal memuat berita.";
+        document.getElementById("berita").innerText = "❌ Gagal memuat berita. " + err;
       });
   </script>
 </body>
