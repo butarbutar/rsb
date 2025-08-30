@@ -27,7 +27,123 @@
     <a href="berita.html">Berita</a>
     <a href="kontak.html">Kontak</a>
   </nav>
+  aaaaaaaaaaaaaaaaaaaaaa
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Berita Terbaru</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f3f4f6;
+    }
+    header {
+      background: #2563eb;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    h2 { margin: 0; }
 
+    .container {
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 10px;
+    }
+
+    .news {
+      background: white;
+      padding: 20px;
+      margin: 15px 0;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+      transition: transform 0.2s ease-in-out;
+    }
+    .news:hover {
+      transform: scale(1.01);
+    }
+
+    .news h3 {
+      margin: 0 0 10px;
+      color: #1d4ed8;
+    }
+    .news p {
+      color: #333;
+      line-height: 1.6;
+    }
+    .meta {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #666;
+    }
+    .meta span {
+      margin-right: 15px;
+    }
+    footer {
+      text-align: center;
+      padding: 15px;
+      margin-top: 20px;
+      background: #1e3a8a;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h2>📢 Berita Terbaru</h2>
+    <p>Kumpulan informasi terbaru dari RSB</p>
+  </header>
+
+  <div class="container" id="berita">
+    Sedang memuat berita...
+  </div>
+
+  <footer>
+    &copy; 2025 RSB | Portal Berita
+  </footer>
+
+  <script>
+    const sheetID = "1CVmftC8-jNyWhpY1ol3Ur29r_4RDKSZWrLDKxmxicvQ"; // ID spreadsheet kamu
+    const sheetName = "Sheet1";
+    const url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
+
+    fetch(url)
+      .then(res => res.text())
+      .then(data => {
+        let json = JSON.parse(data.substr(47).slice(0, -2));
+        let rows = json.table.rows;
+        let html = "";
+
+        rows.slice(1).forEach(r => {
+          let tanggal = r.c[0]?.f || r.c[0]?.v || "-";
+          let judul   = r.c[1]?.v || "(Tanpa Judul)";
+          let isi     = r.c[2]?.v || "";
+          let penulis = r.c[3]?.v || "Anonim";
+
+          html += `
+            <div class="news">
+              <h3>${judul}</h3>
+              <p>${isi}</p>
+              <div class="meta">
+                <span>🗓️ ${tanggal}</span>
+                <span>✍️ ${penulis}</span>
+              </div>
+            </div>`;
+        });
+
+        document.getElementById("berita").innerHTML = html;
+      })
+      .catch(err => {
+        document.getElementById("berita").innerText = "❌ Gagal memuat berita. " + err;
+      });
+  </script>
+</body>
+</html>
+
+  aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
   <!-- BERITA -->
   <main class="container">
     <h2>Berita & Pengumuman</h2>
@@ -56,3 +172,4 @@
   </footer>
 </body>
 </html>
+
