@@ -41,6 +41,14 @@
     }
     .card:hover { transform: translateY(-5px); }
 
+    button.print-btn {
+      padding: 10px 20px;
+      background: #2563eb; color: white;
+      border: none; border-radius: 6px;
+      cursor: pointer; font-size: 14px; margin-top: 10px;
+    }
+    button.print-btn:hover { background: #1d4ed8; }
+
     footer {
       background: #111827; color: #d1d5db; text-align: center;
       padding: 15px; margin-top: 30px;
@@ -57,6 +65,7 @@
     <a href="#beranda">Beranda</a>
     <a href="#profil">Profil</a>
     <a href="#layanan">Layanan</a>
+    <a href="#dokumen">Dokumen</a>
     <a href="#kontak">Kontak</a>
   </nav>
 
@@ -88,6 +97,12 @@
         <p>Kanal komunikasi resmi untuk pertanyaan dan kerja sama.</p>
       </div>
     </div>
+  </div>
+
+  <div class="container" id="dokumen">
+    <h2>Dokumen Kendali Pemeriksaan</h2>
+    <p>Berikut dokumen susunan 4 rangkap untuk keperluan resmi.</p>
+    <button class="print-btn" onclick="window.print()">🖨️ Cetak Dokumen</button>
   </div>
 
   <div class="container" id="kontak">
