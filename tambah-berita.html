@@ -1,59 +1,298 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Tambah Berita</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f9; }
-    form { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-    input, textarea { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 5px; }
-    button { background: #2563eb; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px; }
-    button:hover { background: #1e40af; }
-    #status { margin-top: 10px; font-weight: bold; }
-  </style>
+<meta charset="UTF-8">
+<title>Form Identitas Lengkap - Full Features</title>
+<style>
+:root {
+  --bg-color: #f4f6f8;
+  --text-color: #333;
+  --table-header: #1976D2;
+  --table-row-even: #f2f2f2;
+  --table-row-hover: #e3f2fd;
+}
+body.dark-mode {
+  --bg-color: #121212;
+  --text-color: #e0e0e0;
+  --table-header: #2196F3;
+  --table-row-even: #1e1e1e;
+  --table-row-hover: #333333;
+}
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; background: var(--bg-color); color: var(--text-color); transition: background 0.3s, color 0.3s; }
+h2 { text-align: center; margin-bottom: 20px; }
+table { border-collapse: collapse; width: 100%; margin-bottom: 20px; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1); color: var(--text-color); }
+th, td { padding: 10px; text-align: left; }
+th { background-color: var(--table-header); color: white; font-weight: 600; }
+tr:nth-child(even) td { background-color: var(--table-row-even); }
+tr:hover td { background-color: var(--table-row-hover); transition: 0.2s; }
+input[type="text"], input[type="password"], input[type="file"], select { width: 100%; padding: 8px; margin-bottom: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; background: var(--bg-color); color: var(--text-color); }
+button { margin: 5px 5px 5px 0; padding: 10px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500; color: white; transition: 0.2s; }
+button:hover { opacity: 0.85; }
+.btn-edit { background-color: #0288D1; }
+.btn-add { background-color: #43A047; }
+.btn-print { background-color: #F57C00; }
+.btn-pdf { background-color: #E53935; }
+.btn-excel { background-color: #009688; }
+.btn-delete { background-color: #8E24AA; }
+.btn-upload { background-color: #607D8B; }
+.btn-toggle { background-color: #555555; }
+@media(max-width: 768px) {
+  table, thead, tbody, th, td, tr { display: block; }
+  th { position: sticky; top: 0; background-color: var(--table-header); color: white; }
+  td { border: none; border-bottom: 1px solid #ccc; padding-left: 50%; position: relative; }
+  td::before { position: absolute; left: 10px; width: 45%; padding-right: 10px; white-space: nowrap; font-weight: bold; content: attr(data-label); }
+  button { width: 100%; margin-bottom: 8px; }
+  input[type="text"], input[type="password"], input[type="file"], select { width: 100%; }
+}
+</style>
 </head>
 <body>
-  <h2>📝 Tambah Berita Baru</h2>
-  <form id="beritaForm">
-    <input type="date" name="tanggal" required>
-    <input type="text" name="judul" placeholder="Judul Berita" required>
-    <input type="url" name="gambar1" placeholder="Link Gambar 1" required>
-    <textarea name="isi1" placeholder="Isi Berita" rows="5" required></textarea>
-    <input type="url" name="gambar2" placeholder="Link Gambar 2 (opsional)">
-    <textarea name="isi2" placeholder="Isi Kembali" rows="5"></textarea>
-    <input type="text" name="penulis" placeholder="Nama Penulis" required>
-    <button type="submit">Kirim</button>
-  </form>
 
-  <p id="status"></p>
+<h2>Form Identitas Lengkap</h2>
 
-  <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbyiHZFeA2tIRvpVtNzmvN2g8VD2q0cvnmwVj8MPXbE8uelaZCviiQiLYQvstWTpHpoCZQ/exec"; // URL Web App kamu
+<div style="margin-bottom:10px;">
+  <input type="text" id="searchInput" placeholder="Cari data..." onkeyup="filterTable()">
+</div>
 
-    document.getElementById("beritaForm").addEventListener("submit", function(e){
-      e.preventDefault();
-      let data = {
-        tanggal: this.tanggal.value,
-        judul: this.judul.value,
-        gambar1: this.gambar1.value,
-        isi1: this.isi1.value,
-        gambar2: this.gambar2.value,
-        isi2: this.isi2.value,
-        penulis: this.penulis.value
-      };
-      fetch(scriptURL, {
-        method: "POST",
-        body: JSON.stringify(data)
-      })
-      .then(res => res.text())
-      .then(txt => {
-        document.getElementById("status").innerText = "✅ Berita berhasil dikirim!";
-        this.reset();
-      })
-      .catch(err => {
-        document.getElementById("status").innerText = "❌ Gagal mengirim berita.";
-      });
+<div style="display:flex; gap:10px; margin-bottom:10px; flex-wrap:wrap;">
+  <select id="filterProvinsi" onchange="filterTable()"> 
+    <option value="">Filter Provinsi</option>
+  </select>
+  <select id="filterJabatan" onchange="filterTable()"> 
+    <option value="">Filter Jabatan</option>
+  </select>
+  <button class="btn-toggle" onclick="toggleDarkMode()">Toggle Dark/Light</button>
+</div>
+
+<table id="identitasTable">
+  <thead>
+    <tr>
+      <th>NO</th>
+      <th>NAMA</th>
+      <th>NIK</th>
+      <th>Jabatan</th>
+      <th>Tempat Lahir</th>
+      <th>Tanggal Lahir</th>
+      <th>Jorong</th>
+      <th>Nagari</th>
+      <th>Kecamatan</th>
+      <th>Kabupaten</th>
+      <th>Provinsi</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td data-label="NO">1</td>
+      <td data-label="NAMA">Rahmat Saleh</td>
+      <td data-label="NIK"></td>
+      <td data-label="Jabatan"></td>
+      <td data-label="Tempat Lahir"></td>
+      <td data-label="Tanggal Lahir"></td>
+      <td data-label="Jorong"></td>
+      <td data-label="Nagari"></td>
+      <td data-label="Kecamatan"></td>
+      <td data-label="Kabupaten"></td>
+      <td data-label="Provinsi"></td>
+      <td data-label="Aksi"></td>
+    </tr>
+  </tbody>
+</table>
+
+<div>
+  <input type="password" id="passwordEdit" placeholder="Password untuk edit">
+  <button class="btn-edit" onclick="aktifkanEdit()">Aktifkan Edit</button>
+
+  <input type="password" id="passwordAdd" placeholder="Password untuk tambah baris">
+  <button class="btn-add" onclick="tambahBaris()">Tambah Baris</button>
+
+  <input type="file" id="fileUpload" accept=".xlsx,.xls">
+  <button class="btn-upload" onclick="uploadExcel()">Upload Excel</button>
+
+  <button class="btn-print" onclick="window.print()">Print</button>
+  <button class="btn-pdf" onclick="downloadPDF()">Download PDF</button>
+  <button class="btn-excel" onclick="downloadExcel()">Download Excel</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+// PASSWORD
+const PASSWORD_EDIT = "edit123";
+const PASSWORD_ADD = "rahasia123";
+const PASSWORD_DELETE = "hapus123";
+
+// Dark Mode Toggle
+function toggleDarkMode(){
+  document.body.classList.toggle('dark-mode');
+}
+
+// Fungsi utama
+function aktifkanEdit(){
+  const pass = document.getElementById("passwordEdit").value;
+  if(pass!==PASSWORD_EDIT){ alert("Password salah!"); return; }
+  const table=document.getElementById("identitasTable");
+  for(let r=1;r<table.rows.length;r++){
+    for(let c=0;c<table.rows[r].cells.length-1;c++){
+      const cell=table.rows[r].cells[c];
+      cell.contentEditable="true";
+      cell.addEventListener('input', simpanData);
+    }
+  }
+  updateFilterOptions();
+  alert("Edit aktif, data otomatis tersimpan!");
+}
+
+function tambahBaris(){
+  const pass=document.getElementById("passwordAdd").value;
+  if(pass!==PASSWORD_ADD){ alert("Password salah!"); return; }
+  const table=document.getElementById("identitasTable").getElementsByTagName('tbody')[0];
+  const newRow=table.insertRow();
+  for(let i=0;i<12;i++){
+    const cell=newRow.insertCell();
+    if(i===0){ cell.innerText=table.rows.length; cell.dataset.label="NO"; }
+    else if(i===11){
+      const btn=document.createElement("button");
+      btn.innerText="Hapus"; btn.className="btn-delete";
+      btn.onclick=function(){ hapusBarisSpesifik(this); };
+      cell.appendChild(btn); cell.dataset.label="Aksi";
+    } else {
+      cell.contentEditable="true";
+      cell.dataset.label=document.getElementById("identitasTable").rows[0].cells[i].innerText;
+      cell.addEventListener('input', simpanData);
+    }
+  }
+  simpanData(); updateNo(); updateFilterOptions();
+}
+
+function hapusBarisSpesifik(button){
+  const pass=prompt("Masukkan password untuk hapus baris:");
+  if(pass!==PASSWORD_DELETE){ alert("Password salah!"); return; }
+  const row=button.parentElement.parentElement;
+  row.parentElement.removeChild(row);
+  updateNo(); simpanData(); updateFilterOptions();
+}
+
+function uploadExcel(){
+  const fileInput=document.getElementById('fileUpload');
+  if(fileInput.files.length===0){ alert("Pilih file Excel!"); return; }
+  const file=fileInput.files[0];
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const data=new Uint8Array(e.target.result);
+    const workbook=XLSX.read(data,{type:'array'});
+    const ws=XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]],{header:1});
+    if(ws.length===0) return;
+    const table=document.getElementById("identitasTable").getElementsByTagName('tbody')[0];
+    table.innerHTML="";
+    ws.forEach((rowData,rowIndex)=>{
+      if(rowIndex===0) return;
+      const row=table.insertRow();
+      for(let i=0;i<12;i++){
+        const cell=row.insertCell();
+        if(i===0){ cell.innerText=table.rows.length; cell.dataset.label="NO"; }
+        else if(i===11){
+          const btn=document.createElement("button"); btn.innerText="Hapus"; btn.className="btn-delete"; btn.onclick=function(){hapusBarisSpesifik(this);};
+          cell.appendChild(btn); cell.dataset.label="Aksi";
+        } else { cell.innerText=rowData[i]||""; cell.contentEditable="true"; cell.dataset.label=document.getElementById("identitasTable").rows[0].cells[i].innerText; cell.addEventListener('input',simpanData);}
+      }
     });
-  </script>
+    updateNo(); simpanData(); updateFilterOptions(); alert("Upload berhasil!");
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function simpanData(){
+  const table=document.getElementById("identitasTable");
+  const data=[];
+  for(let r=1;r<table.rows.length;r++){
+    const row=[];
+    for(let c=0;c<table.rows[r].cells.length-1;c++){ row.push(table.rows[r].cells[c].innerText); }
+    data.push(row);
+  }
+  localStorage.setItem("identitasData", JSON.stringify(data));
+}
+
+function updateNo(){
+  const table=document.getElementById("identitasTable");
+  for(let r=1;r<table.rows.length;r++){ table.rows[r].cells[0].innerText=r; }
+}
+
+function downloadPDF(){
+  const { jsPDF } = window.jspdf;
+  const doc=new jsPDF();
+  const table=document.getElementById("identitasTable"); let y=10;
+  for(let c=0;c<table.rows[0].cells.length-1;c++){ doc.text(table.rows[0].cells[c].innerText,10+c*18,y); }
+  y+=10;
+  for(let r=1;r<table.rows.length;r++){
+    for(let c=0;c<table.rows[r].cells.length-1;c++){ doc.text(table.rows[r].cells[c].innerText,10+c*18,y); }
+    y+=10;
+  }
+  doc.save("identitas.pdf");
+}
+
+function downloadExcel(){
+  const table=document.getElementById("identitasTable");
+  const wb=XLSX.utils.book_new(); const ws_data=[];
+  for(let r=0;r<table.rows.length;r++){
+    const row=[];
+    for(let c=0;c<table.rows[r].cells.length-1;c++){ row.push(table.rows[r].cells[c].innerText); }
+    ws_data.push(row);
+  }
+  const ws=XLSX.utils.aoa_to_sheet(ws_data);
+  XLSX.utils.book_append_sheet(wb, ws, "Identitas");
+  XLSX.writeFile(wb, "identitas.xlsx");
+}
+
+function filterTable(){
+  const input=document.getElementById("searchInput").value.toLowerCase();
+  const prov=document.getElementById("filterProvinsi").value.toLowerCase();
+  const jab=document.getElementById("filterJabatan").value.toLowerCase();
+  const table=document.getElementById("identitasTable");
+  const tbody=table.getElementsByTagName("tbody")[0];
+  for(let i=0;i<tbody.rows.length;i++){
+    const row=tbody.rows[i];
+    let match=false;
+    for(let j=0;j<row.cells.length-1;j++){
+      const txt=row.cells[j].innerText.toLowerCase();
+      if(input && txt.includes(input)) match=true;
+      if(prov && j===10 && txt.includes(prov)) match=true;
+      if(jab && j===3 && txt.includes(jab)) match=true;
+    }
+    row.style.display=match?"":"none";
+  }
+}
+
+function updateFilterOptions(){
+  const table=document.getElementById("identitasTable");
+  const provSet=new Set(); const jabSet=new Set();
+  for(let r=1;r<table.rows.length;r++){ provSet.add(table.rows[r].cells[10].innerText); jabSet.add(table.rows[r].cells[3].innerText); }
+  const provSelect=document.getElementById("filterProvinsi"); const jabSelect=document.getElementById("filterJabatan");
+  provSelect.innerHTML='<option value="">Filter Provinsi</option>';
+  jabSelect.innerHTML='<option value="">Filter Jabatan</option>';
+  provSet.forEach(p=>{ if(p) provSelect.innerHTML+=`<option value="${p}">${p}</option>`; });
+  jabSet.forEach(j=>{ if(j) jabSelect.innerHTML+=`<option value="${j}">${j}</option>`; });
+}
+
+// Load data dari localStorage
+window.onload=function(){
+  const data=JSON.parse(localStorage.getItem("identitasData")||"[]");
+  if(data.length>0){
+    const table=document.getElementById("identitasTable").getElementsByTagName('tbody')[0];
+    table.innerHTML="";
+    data.forEach(rowData=>{
+      const row=table.insertRow();
+      for(let i=0;i<12;i++){
+        const cell=row.insertCell();
+        if(i===0){ cell.innerText=rowData[0]||""; cell.dataset.label="NO"; }
+        else if(i===11){ const btn=document.createElement("button"); btn.innerText="Hapus"; btn.className="btn-delete"; btn.onclick=function(){hapusBarisSpesifik(this);}; cell.appendChild(btn); cell.dataset.label="Aksi"; }
+        else{ cell.innerText=rowData[i]||""; cell.contentEditable="true"; cell.dataset.label=document.getElementById("identitasTable").rows[0].cells[i].innerText; cell.addEventListener('input',simpanData);}
+      }
+    });
+    updateNo(); updateFilterOptions();
+  }
+}
+</script>
+
 </body>
 </html>
