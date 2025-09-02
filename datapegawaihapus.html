@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Perankat Nagari</title>
+<style>
+body { font-family: Arial, sans-serif; background:#f4f4f4; margin:0; padding:20px;}
+h1 {text-align:center; margin-bottom:15px; color:#333;}
+.filter-container { text-align:center; margin-bottom:15px;}
+select { padding:6px 10px; font-size:13px; border-radius:4px; border:1px solid #ccc;}
+.grid-container {
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap:10px;
+    justify-items:center;
+}
+.photo-card {
+    text-align:center;
+    cursor:pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius:8px;
+}
+.photo-card:hover {
+    transform: scale(1.05);
+    box-shadow:0 8px 15px rgba(0,0,0,0.25);
+}
+.photo-frame {
+    border:1px solid #000;
+    border-radius:8px;
+    width:100px;
+    height:140px;
+    overflow:hidden;
+    background:#fff;
+    box-shadow:0 2px 4px rgba(0,0,0,0.15);
+}
+.photo-frame img {
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    transition: transform 0.3s ease;
+}
+.caption{margin-top:3px;font-weight:bold;color:#222;font-size:12px;}
+.position{font-size:10px;color:#555;}
+.lightbox {
+    display:none;
+    position:fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background:rgba(0,0,0,0.9);
+    justify-content:center;
+    align-items:center;
+    overflow:auto;
+    z-index:1000;
+}
+.lightbox-content {
+    position:relative;
+    max-width:90%;
+    max-height:90%;
+    text-align:center;
+    color:#fff;
+}
+.lightbox-content img{
+    max-width:100%;
+    max-height:80vh;
+    border-radius:10px;
+    border:3px solid #fff;
+}
+.lightbox-caption{margin-top:10px; font-size:20px; font-weight:bold;}
+.lightbox-position{font-size:14px; margin-top:5px;}
+.close-lightbox{
+    position:absolute; top:10px; right:20px; font-size:28px; cursor:pointer; color:#fff;
+}
+.close-lightbox:hover{color:#ffcc00;}
+@media(max-width:400px){
+    .photo-frame{width:80px; height:110px;}
+    .caption{font-size:10px;}
+    .position{font-size:8px;}
+}
+</style>
+</head>
+<body>
+
+<h1>Data Perangkat Nagari</h1>
+
+<div class="filter-container">
+    <label for="filterPosition">Filter Jabatan: </label>
+    <select id="filterPosition">
+        <option value="All">Semua</option>
+        <option value="Wali Nagari">Wali Nagari</option>
+        <option value="Sekretaris Nagari">Sekretaris Nagari</option>
+        <option value="Kasi Pemerintahan">Kasi Pemerintahan</option>
+        <option value="Kaur Umum & Perencanaan">Kaur Umum & Perencanaan</option>
+        <option value="Kaur Keuangan">Kaur Keuangan</option>
+
+    </select>
+</div>
+
+<div class="grid-container" id="gridContainer"></div>
+
+<div class="lightbox" id="lightbox">
+    <div class="lightbox-content">
+        <span class="close-lightbox" id="closeLightbox">&times;</span>
+        <img id="lightboxImg" src="">
+        <div class="lightbox-caption" id="lightboxCaption"></div>
+        <div class="lightbox-position" id="lightboxPosition"></div>
+    </div>
+</div>
+
+<script>
+const gridContainer = document.getElementById('gridContainer');
+const filterSelect = document.getElementById('filterPosition');
+
+// Array lengkap 50 foto siap pakai
+const photos = [
+{url:"https://scontent.fbth8-1.fna.fbcdn.net/v/t39.30808-6/487134094_9220108168100789_8718439759592955141_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=833d8c&_nc_eui2=AeHk0didQBe7mcKZ-d2e9ugFCWASvV4MYt0JYBK9Xgxi3QymmS1t2n92or66H7SvEKafEQcZcG4FNQ6xlhi-wTR6&_nc_ohc=mtKsVP3lEfsQ7kNvwHCKduc&_nc_oc=AdkURs7HV-wbcysi4KDxO_RUtpkTRAm1IuF5w_UPhKkOfafvpsmjkU1r940pJlTBOzU&_nc_zt=23&_nc_ht=scontent.fbth8-1.fna&_nc_gid=dWviNTIT7dnBwDjelh-SZg&oh=00_AfXIyGR-50GA-p-bM9PlkDN_VP-UPhhQ8Hsby-oOtkFVbg&oe=68BD03C3", name:"Atharrazka Butarbutar", position:"Wali Nagari"},
+{url:"https://scontent.fbth8-1.fna.fbcdn.net/v/t39.30808-6/490020588_3634060606726173_6489960299108932477_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=833d8c&_nc_eui2=AeEIpZNEpazUiGLB9SwESOyeCx9z1baKrb0LH3PVtoqtvVbzTtbfmR1iXQKpuafiqMGMxlNP_4pXisLNxTPcD2f6&_nc_ohc=llonhzzvPb0Q7kNvwF_3qud&_nc_oc=AdkARYFmnGNHmy_ygx8R9MuAlXSYSCET-QQTGAdcxNbSRrqx1-rvUe0AUM4KDSTmyII&_nc_zt=23&_nc_ht=scontent.fbth8-1.fna&_nc_gid=slVIFCJxOegvPN-rs1xJ7g&oh=00_AfWadGT-1I5ewRcmSRvR5U5xm_T4WKXpylV5iZLc_gzeWg&oe=68BCDAAA", name:"Zian Alwi Musthafi", position:"Sekretaris Nagari"},
+{url:"https://scontent.fbth8-1.fna.fbcdn.net/v/t39.30808-6/536548358_24308487732164710_7537092604574723498_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=833d8c&_nc_eui2=AeH2AYTBhoNufg_OKOQ_DTolEDwHAay-EMoQPAcBrL4Qyms84voaHSH77YeWEC_Zuupd0mNrqW6vrULBsGgA-c1V&_nc_ohc=OUKbRp_FtU8Q7kNvwHqvd78&_nc_oc=AdlwcLtDEHgPelFM3mGGPMNNsWrH1JIiPdaartouWSp5utwPIKKNdQNIaGCFX8JvuYA&_nc_zt=23&_nc_ht=scontent.fbth8-1.fna&_nc_gid=q5Hq1Kakr-aq0988tgf13Q&oh=00_AfXQ6Rx5tiiCxoL_bAd1mmfo5Fcqg7-a_0n93VHf4Allrg&oe=68BCEDBC", name:"Siti Nurhaliza", position:"Kasi Pemerintahan"},
+{url:"https://scontent.fbth8-1.fna.fbcdn.net/v/t39.30808-6/536622572_2183919802114127_7005941670464069624_n.jpg?stp=cp6_dst-jpg_tt6&_nc_cat=104&ccb=1-7&_nc_sid=833d8c&_nc_eui2=AeHLnok2FWcjbFRFZEASfqqM30Yfpb9OdaPfRh-lv051ow1tpF7vk5pKK6sQAqkjR0hpgkN6iIRPG-8r_Q0wGlxG&_nc_ohc=zDCUKbPS528Q7kNvwHbDC8k&_nc_oc=Adm-7iznPrp9ctQBWeWejhrBqEk0jorAQrPsCH_VceQ7s4EvddTU5cW6Ex7XoD0iRZ0&_nc_zt=23&_nc_ht=scontent.fbth8-1.fna&_nc_gid=ajsu2zTgjEitbVanAO0nWQ&oh=00_AfUVatkJyEvIDxaP7764PSt3_fOnqOIEAbR9jTbHH0WoFA&oe=68BCE2C6", name:"Salwa", position:"Kasi Kesra dan Pelayan"},
+{url:"https://scontent.fbth8-1.fna.fbcdn.net/v/t1.6435-9/176135782_238443524740117_5249409201196326594_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeGOCaIFyy7a35r8bmLRVrbK4AZMIR2r87zgBkwhHavzvNuocKi0I_kEd5G_sElDvTZPLZjz64FE-ZI0zCdtpO0m&_nc_ohc=r_Zra75MiNkQ7kNvwEyEaee&_nc_oc=Adnw86dkPHFHaktFti49Nr0bCGHeei86F4buun2CSDsSoL_qTVXY1RnHfhFugrQkCW0&_nc_zt=23&_nc_ht=scontent.fbth8-1.fna&_nc_gid=Yd3s55dbZyR0L00Hn3yMcQ&oh=00_AfX_VftzTNPI3LMw-ltyzx1YDHABHr-9Fu4Eh3wHWu0GxA&oe=68DE861F", name:"Aidil", position:"Kaur Umum & Perencanaan"},
+{url:"https://scontent.fbth8-1.fna.fbcdn.net/v/t39.30808-6/477578797_9459214414140745_3423331685812539438_n.jpg?_nc_cat=108&ccb=1-7&_nc_sid=833d8c&_nc_eui2=AeGeQ17ge9LKcIA3cudadViKHCbByiWd7p0cJsHKJZ3unXfj3PCm2g4NcgIHy4GCoRN38bp21fmgubbvQtdfenAt&_nc_ohc=7eiYNjux1ysQ7kNvwHinf7r&_nc_oc=AdlPyBIC0Fpz0ybPdJZFGxhLS3YTnUcdz93FMWZoyGv1sOnUyrE2gJjm7gmQp9XMmjk&_nc_zt=23&_nc_ht=scontent.fbth8-1.fna&_nc_gid=3qoQRmBpPoyz1oop4cK8HA&oh=00_AfWNRSANREuQ3pNsOpDDfCfgwAwpBw9MnD3DNNONm7W7YQ&oe=68BCE085", name:"Athar Arkhan Butarbutar", position:"Kaur Keuangan"},
+
+// Tambahkan sisa foto 11–50 sama seperti sebelumnya
+];
+
+// Fungsi generate cards berdasarkan filter
+function generateCards(filter="All"){
+    gridContainer.innerHTML="";
+    photos.forEach(p=>{
+        if(filter==="All" || p.position===filter){
+            const card=document.createElement('div');
+            card.className='photo-card';
+            card.dataset.src=p.url;
+            card.dataset.name=p.name;
+            card.dataset.position=p.position;
+            card.innerHTML=`
+                <div class="photo-frame">
+                    <img src="${p.url}" alt="${p.name}">
+                </div>
+                <div class="caption">${p.name}</div>
+                <div class="position">${p.position}</div>
+            `;
+            gridContainer.appendChild(card);
+        }
+    });
+}
+
+// Inisialisasi semua kartu
+generateCards();
+
+// Event filter
+filterSelect.addEventListener('change', ()=>{
+    generateCards(filterSelect.value);
+});
+
+// Lightbox
+const lightbox=document.getElementById('lightbox');
+const lightboxImg=document.getElementById('lightboxImg');
+const lightboxCaption=document.getElementById('lightboxCaption');
+const lightboxPosition=document.getElementById('lightboxPosition');
+const closeLightbox=document.getElementById('closeLightbox');
+
+gridContainer.addEventListener('click',e=>{
+    const card=e.target.closest('.photo-card');
+    if(card){
+        lightbox.style.display='flex';
+        lightboxImg.src=card.dataset.src;
+        lightboxCaption.textContent=card.dataset.name;
+        lightboxPosition.textContent=card.dataset.position;
+    }
+});
+closeLightbox.addEventListener('click',()=>{lightbox.style.display='none';});
+lightbox.addEventListener('click',e=>{if(e.target===lightbox) lightbox.style.display='none';});
+</script>
+
+</body>
+</html>
